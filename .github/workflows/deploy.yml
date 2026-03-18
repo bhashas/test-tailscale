@@ -5,30 +5,26 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     steps:
-      # 1. Récupère ton code (main.tf)
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Installe Terraform sur le serveur GitHub
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.7.0"
           terraform_wrapper: false
 
-      # 3. Connecte le tunnel Tailscale
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
 
-      # 4. Exécute les commandes Terraform
       - name: Terraform Apply
         env:
-          PM_API_TOKEN_ID: ${{ secrets.PM_API_TOKEN_ID }}
-          PM_API_TOKEN_SECRET: ${{ secrets.PM_API_TOKEN_SECRET }}
+          # Ici on utilise les noms exacts de ton main.tf avec le préfixe TF_VAR_
+          TF_VAR_proxmox_api_url: ${{ secrets.PROXMOX_API_URL }}
+          TF_VAR_proxmox_api_token_id: ${{ secrets.PROXMOX_API_TOKEN_ID }}
+          TF_VAR_proxmox_api_token_secret: ${{ secrets.PROXMOX_API_TOKEN_SECRET }}
         run: |
           terraform init
-          terraform apply -auto-approve \
-            -var="pm_api_token_id=$PM_API_TOKEN_ID" \
-            -var="pm_api_token_secret=$PM_API_TOKEN_SECRET"
+          terraform apply -auto-approve
