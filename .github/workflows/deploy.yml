@@ -1,0 +1,24 @@
+name: Proxmox-Deploy-Lab
+on: [push]
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Terraform Apply
+        env:
+          PM_API_TOKEN_ID: ${{ secrets.PM_API_TOKEN_ID }}
+          PM_API_TOKEN_SECRET: ${{ secrets.PM_API_TOKEN_SECRET }}
+        run: |
+          terraform init
+          terraform apply -auto-approve \
+            -var="pm_api_token_id=$PM_API_TOKEN_ID" \
+            -var="pm_api_token_secret=$PM_API_TOKEN_SECRET"
