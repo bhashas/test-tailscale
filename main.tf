@@ -17,52 +17,83 @@ resource "proxmox_virtual_environment_vm" "vm_test" {
   name      = "vm-test-tailscale-bpg"
   node_name = "pve-1"
   vm_id     = 505
+  started   = true
+  on_boot   = false
 
   clone {
-    vm_id = 9000
-    full  = false 
-    retries = 3    # Ajoute cette ligne pour laisser le temps à Proxmox
+    vm_id   = 9000
+    full    = true
+    retries = 3
   }
 
-  network_device {
-    bridge = "vmbr2" # Bridge privé pour Tailscale
+  agent {
+    enabled = true
   }
+
+  cpu {
+    cores   = 2
+    sockets = 1
+    type    = "x86-64-v2-AES"
+  }
+
+  memory {
+    dedicated = 2048
+  }
+
+  scsi_hardware = "virtio-scsi-pci"
+
+  vga {
+    type = "serial0"
+  }
+
+  serial_device {}
 
   disk {
     datastore_id = "local-zfs"
     interface    = "scsi0"
-    size         = 25
+    size         = 22
+    discard      = "on"
+    file_format  = "raw"
+  }
+
+  network_device {
+    bridge = "vmbr2"
+    model  = "virtio"
   }
 
   initialization {
+    dns {
+      servers = ["1.1.1.1", "8.8.8.8"]
+    }
     ip_config {
       ipv4 {
-        address = "192.168.192.55/18" # IP fixe dans ton subnet
+        address = "192.168.192.55/18"
         gateway = "192.168.192.5"
       }
     }
-
     user_account {
       username = "ubuntu"
-      keys     = [var.ssh_public_key] # Utilise le secret GitHub
+      keys     = [var.ssh_public_key]
     }
+  }
+
+  timeouts {
+    create = "15m"
+    update = "10m"
+    delete = "5m"
   }
 }
 
-# --- DÉCLARATION DES VARIABLES (SYNTAXE CORRIGÉE) ---
-variable "proxmox_api_url" { 
-  type = string 
+variable "proxmox_api_url" {
+  type = string
 }
-
-variable "proxmox_api_token_id" { 
-  type = string 
+variable "proxmox_api_token_id" {
+  type = string
 }
-
-variable "proxmox_api_token_secret" { 
+variable "proxmox_api_token_secret" {
   type      = string
-  sensitive = true 
+  sensitive = true
 }
-
-variable "ssh_public_key" { 
-  type = string 
+variable "ssh_public_key" {
+  type = string
 }
