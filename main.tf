@@ -62,6 +62,7 @@ resource "proxmox_virtual_environment_vm" "vm_test" {
   }
 
   initialization {
+    datastore_id = "local-zfs"
     dns {
       servers = ["1.1.1.1", "8.8.8.8"]
     }
@@ -76,7 +77,6 @@ resource "proxmox_virtual_environment_vm" "vm_test" {
       keys     = [var.ssh_public_key]
     }
   }
-}
 
 variable "proxmox_api_url" {
   type = string
