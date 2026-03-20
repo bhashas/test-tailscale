@@ -77,6 +77,7 @@ resource "proxmox_virtual_environment_vm" "vm_test" {
       keys     = [var.ssh_public_key]
     }
   }
+}
 
 variable "proxmox_api_url" {
   type = string
