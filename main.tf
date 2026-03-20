@@ -1,4 +1,10 @@
 terraform {
+  cloud {
+    organization = "LAB_TEST_BRAHIM"
+    workspaces {
+      name = "test-tailscale"
+    }
+  }
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"

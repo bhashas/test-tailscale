@@ -69,6 +69,11 @@ jobs:
           TF_VAR_proxmox_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
         run: |
+      - name: Setup Terraform Cloud token
+        run: |
+          mkdir -p ~/.terraform.d
+          echo '{"credentials":{"app.terraform.io":{"token":"${{ secrets.TF_API_TOKEN }}"}}}' > ~/.terraform.d/credentials.tfrc.json
+
           terraform init
           terraform apply -auto-approve
 
