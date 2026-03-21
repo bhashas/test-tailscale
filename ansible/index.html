@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxmox Cloud Lab - Success</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+        }
+        h1 {
+            color: #4ade80;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .info {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 2rem;
+        }
+        .tag {
+            background: #334155;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🚀 Pipeline OK</h1>
+        <div class="info">
+            <p><strong>Node :</strong> Proxmox Hetzner</p>
+            <p><strong>Target :</strong> vm-test-tailscale-final (ID 505)</p>
+            <p><strong>Network :</strong> 192.168.192.55 (Tailscale)</p>
+        </div>
+        <div class="tech-stack">
+            <span class="tag">TERRAFORM</span>
+            <span class="tag">ANSIBLE</span>
+            <span class="tag">TAILSCALE</span>
+        </div>
+    </div>
+</body>
+</html>
