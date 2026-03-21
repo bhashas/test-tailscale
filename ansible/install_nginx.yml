@@ -1,0 +1,32 @@
+---
+- name: Configure web server
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+    - name: Deploy test page
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head><title>Lab CI/CD</title></head>
+          <body>
+            <h1>Pipeline OK</h1>
+            <p>VM : {{ ansible_hostname }}</p>
+            <p>IP : {{ ansible_default_ipv4.address }}</p>
+            <p>Deploye via GitHub Actions + Terraform + Ansible</p>
+          </body>
+          </html>
+
+    - name: Start and enable Nginx
+      systemd:
+        name: nginx
+        state: started
+        enabled: true
