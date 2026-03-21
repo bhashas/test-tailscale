@@ -1,3 +1,4 @@
+![Deploy Status](https://github.com/bhashas/test-tailscale/actions/workflows/deploy.yml/badge.svg)
 # 🚀 Proxmox CI/CD Lab — Terraform + Ansible + Tailscale
 
 <p align="left">
