@@ -23,7 +23,7 @@ resource "proxmox_virtual_environment_vm" "vm_test" {
   name      = "vm-test-tailscale-bpg"
   node_name = "pve-1"
   vm_id     = 505
-  started   = true
+  started   = false
   on_boot   = false
 
   clone {
@@ -33,7 +33,7 @@ resource "proxmox_virtual_environment_vm" "vm_test" {
   }
 
   agent {
-    enabled = true
+    enabled = false
   }
 
   cpu {
