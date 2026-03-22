@@ -1,5 +1,5 @@
-
-# 🚀 Proxmox CI/CD Lab — Terraform + Ansible + Tailscale ![Deploy Status](https://github.com/bhashas/test-tailscale/actions/workflows/deploy.yml/badge.svg)
+![Deploy Status](https://github.com/bhashas/test-tailscale/actions/workflows/deploy.yml/badge.svg)
+# 🚀 Proxmox CI/CD Lab — Terraform + Ansible + Tailscale
 
 <p align="left">
   <img src="https://img.shields.io/badge/Terraform-1.7-7B42BC?style=for-the-badge&logo=terraform&logoColor=white"/>
@@ -24,8 +24,7 @@
 ---
 
 ## 📐 Architecture
-
-```text
+```
 ┌─────────────────────────────────────────────────────────────┐
 │  Poste Dev (Ubuntu Management VM)                           │
 │  git push → GitHub                                          │
@@ -53,39 +52,146 @@
               │   192.168.192.55      │
               │   Nginx + page web    │
               └───────────────────────┘
-````
+```
 
------
+---
 
-## 🖼️ Déploiement Réussi (Preuve de Concept)
+## 🔄 Pipeline CI/CD
+```
+git push (poste dev)
+    │
+    ▼
+GitHub Actions Runner
+    │
+    ├── [Job 1] Checkov — scan IaC Terraform → SARIF → GitHub Security tab
+    │           Trivy  — scan vulnérabilités  → SARIF → GitHub Security tab
+    │
+    └── [Job 2] Tailscale — nœud éphémère (runner rejoint le tailnet)
+                    │
+                    ├── Terraform init + apply
+                    │   └── Clone VM depuis template Ubuntu 22.04
+                    │       Cloud-init : IP statique + clé SSH ed25519
+                    │
+                    ├── sleep 90s (attente fin cloud-init)
+                    │
+                    └── Ansible playbook
+                        ├── Gathering Facts ✅
+                        ├── Install Nginx   ✅
+                        ├── Deploy page web ✅
+                        └── Start + enable  ✅
+```
 
-Voici le rendu final de la plateforme une fois le pipeline terminé. L'accès est réalisé de manière sécurisée via le tunnel **Tailscale**.
+**Sur PR** → Checkov + Trivy uniquement (pas d'apply)  
+**Sur push `main`** → Pipeline complet
 
-\<p align="center"\>
-\<img src="https://github.com/bhashas/test-tailscale/raw/main/ansible/image\_3.png" alt="Screenshot du déploiement réussi" width="100%"\>
-\</p\>
+---
 
------
+## 🛠️ Stack technique
+
+### Infrastructure as Code
+- **Terraform `bpg/proxmox` provider** — provisionnement VM via API Proxmox
+- **Cloud-init** — injection clé SSH ed25519 + IP statique à la création
+- **Terraform Cloud** — backend distant pour le state (mode Local execution)
+
+### Configuration Management
+- **Ansible** — playbook idempotent : install Nginx + déploiement page web
+- **Inventaire statique** — IP `192.168.192.55` sur réseau privé `vmbr2`
+
+### Networking & Sécurité
+- **Tailscale mesh VPN** — le runner GitHub rejoint le tailnet via authkey éphémère
+- **Subnet routing** — Proxmox expose `192.168.192.0/18` via Tailscale
+- **Aucun port exposé** sur internet — accès exclusivement via Tailscale
+- **Checkov** — scan IaC security avec export SARIF → GitHub Security tab
+- **Trivy** — scan vulnérabilités filesystem avec export SARIF
+- **GitHub Secrets** — 7 secrets, zéro credential en clair dans le code
+
+---
+
+## 📁 Structure du projet
+```
+test-tailscale/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml       # Pipeline CI/CD complet
+├── ansible/
+│   ├── inventory.ini        # VM cible : 192.168.192.55
+│   └── install_nginx.yml    # Playbook : Nginx + page web
+├── main.tf                  # VM Proxmox + cloud-init
+└── README.md
+```
+
+---
+
+## 🔐 Secrets GitHub
+
+| Secret | Rôle |
+|---|---|
+| `TAILSCALE_AUTHKEY` | Auth key éphémère Tailscale (reusable) |
+| `PM_API_URL` | URL API Proxmox via Tailscale |
+| `PM_API_TOKEN_ID` | ID token API Proxmox |
+| `PM_API_TOKEN_SECRET` | Secret UUID du token Proxmox |
+| `SSH_PUBLIC_KEY` | Clé ed25519 publique injectée cloud-init |
+| `SSH_PRIVATE_KEY` | Clé ed25519 privée pour Ansible |
+| `TF_API_TOKEN` | Token Terraform Cloud (state backend) |
+
+---
+
+## 🚀 Déploiement
+
+### Prérequis
+
+- Node Proxmox avec Tailscale installé et connecté
+- Template Ubuntu 22.04 cloud-init (VM ID 9000)
+- Token API Proxmox (`root@pam!terraform`)
+- Workspace Terraform Cloud en mode **Local execution**
+- Subnet routing Tailscale activé sur Proxmox
+```bash
+# Sur Proxmox — activer le subnet routing
+tailscale up --advertise-routes=192.168.192.0/18 --accept-routes
+```
+
+### Lancement
+```bash
+git clone https://github.com/bhashas/test-tailscale
+cd test-tailscale
+git push origin main
+# → Pipeline déclenché automatiquement
+```
+
+### Résultat
+```bash
+curl http://192.168.192.55
+# → <h1>Pipeline OK</h1>
+# → <p>VM : vm-test-tailscale-bpg</p>
+# → <p>IP : 192.168.192.55</p>
+# → <p>Deploye via GitHub Actions + Terraform + Ansible</p>
+```
+
+---
 
 ## 📊 Ce que ce lab démontre
 
 | Compétence | Technologie | Niveau |
-| :--- | :--- | :--- |
+|---|---|---|
 | Infrastructure as Code | Terraform + bpg/proxmox | ✅ Production-ready |
 | Configuration Management | Ansible | ✅ Idempotent |
 | CI/CD Pipeline | GitHub Actions | ✅ Multi-job |
 | VPN Mesh & Networking | Tailscale + subnet routing | ✅ Zero-trust |
 | IaC Security Scanning | Checkov + Trivy + SARIF | ✅ DevSecOps |
+| State Management | Terraform Cloud | ✅ Remote backend |
+| Secrets Management | GitHub Secrets | ✅ Zero plaintext |
+| Virtualisation | Proxmox + cloud-init | ✅ Bare-metal |
 
------
+---
 
 ## 🧰 Technologies
 
-`Proxmox VE 8.4` · `Terraform 1.7` · `bpg/proxmox provider` · `Ansible 2.20` · `Nginx` · `Tailscale 1.94` · `GitHub Actions` · `Checkov` · `Trivy` · `Terraform Cloud` · `Ubuntu 22.04 LTS` · `Cloud-Init`
+`Proxmox VE 8.4` · `Terraform 1.7` · `bpg/proxmox provider` · `Ansible 2.20` · `Nginx` · `Tailscale 1.94` · `GitHub Actions` · `Checkov` · `Trivy` · `Terraform Cloud` · `Ubuntu 22.04 LTS` · `Cloud-Init` · `ed25519 SSH`
 
------
+---
 
 ## 👤 Auteur
 
-Construit dans le cadre d'un homelab multi-site orienté pratique DevSecOps et Cloud Engineering.
+Construit dans le cadre d'un homelab multi-site (node local + Hetzner bare-metal) orienté pratique DevSecOps et Cloud Engineering.
 
+> Ce lab fait partie d'un portfolio de projets infrastructure couvrant Proxmox, pfSense, WireGuard, VXLAN, 802.1X/NPS, Kubernetes, Wazuh/ELK et GCP.
