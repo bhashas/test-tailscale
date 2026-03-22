@@ -92,4 +92,5 @@ jobs:
           ansible-playbook ansible/install_nginx.yml \
             -i ansible/inventory.ini \
             --private-key ~/.ssh/id_ed25519 \
+            -e "tailscale_vm_authkey=${{ secrets.TAILSCALE_VM_AUTHKEY }}" \
             -v

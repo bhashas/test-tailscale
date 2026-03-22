@@ -1,6 +1,6 @@
 ---
 - name: Configure web server with Tailscale HTTPS
-  hosts: all
+  hosts: webservers
   become: true
 
   tasks:
@@ -10,8 +10,8 @@
         state: present
         update_cache: true
 
-    - name: Install Tailscale (pour corriger l'erreur No such file)
-      shell: "curl -fsSL https://tailscale.com/install.sh | sh"
+    - name: Install Tailscale
+      shell: curl -fsSL https://tailscale.com/install.sh | sh
       args:
         creates: /usr/bin/tailscale
 
@@ -23,36 +23,67 @@
         group: www-data
         mode: '0755'
 
-    - name: Provision Tailscale SSL Certificate
-      command: "tailscale cert --cert-file /etc/nginx/certs/cert.crt --key-file /etc/nginx/certs/cert.key {{ ansible_hostname }}.tailfd58bd.ts.net"
+    - name: Connect VM to Tailscale tailnet
+      shell: "tailscale up --authkey={{ tailscale_vm_authkey }} --hostname=vm-test-proxmox --accept-routes"
 
-    - name: Configure Nginx with SSL
+    - name: Wait for Tailscale to be ready
+      pause:
+        seconds: 10
+
+    - name: Get Tailscale DNS name
+      shell: tailscale status --json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['Self']['DNSName'].rstrip('.'))"
+      register: ts_dns
+
+    - name: Provision Tailscale SSL Certificate
+      shell: "tailscale cert --cert-file /etc/nginx/certs/cert.crt --key-file /etc/nginx/certs/cert.key {{ ts_dns.stdout }}"
+
+    - name: Configure Nginx HTTPS
       copy:
-        dest: /etc/nginx/sites-available/default
+        dest: /etc/nginx/sites-available/app
         content: |
           server {
               listen 80;
+              return 301 https://$host$request_uri;
+          }
+          server {
               listen 443 ssl;
-              server_name {{ ansible_hostname }}.tailfd58bd.ts.net;
-
-              ssl_certificate /etc/nginx/certs/cert.crt;
+              server_name {{ ts_dns.stdout }};
+              ssl_certificate     /etc/nginx/certs/cert.crt;
               ssl_certificate_key /etc/nginx/certs/cert.key;
-
               location / {
                   root /var/www/html;
                   index index.html;
               }
           }
-      notify: Restart Nginx
 
-    - name: Ensure Nginx is started and enabled
-      service:
-        name: nginx
-        state: started
-        enabled: true
+    - name: Enable site
+      file:
+        src: /etc/nginx/sites-available/app
+        dest: /etc/nginx/sites-enabled/app
+        state: link
 
-  handlers:
+    - name: Remove default site
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Deploy page web
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head><title>Pipeline OK</title></head>
+          <body>
+            <h1>Pipeline OK</h1>
+            <p>VM : {{ ansible_hostname }}</p>
+            <p>IP : {{ ansible_default_ipv4.address }}</p>
+            <p>Deploye via GitHub Actions + Terraform + Ansible + Tailscale HTTPS</p>
+          </body>
+          </html>
+
     - name: Restart Nginx
-      service:
+      systemd:
         name: nginx
         state: restarted
+        enabled: true

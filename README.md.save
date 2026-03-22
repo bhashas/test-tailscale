@@ -1,0 +1,27 @@
+  GNU nano 7.2                        README.md *
+  <img src="https://img.shields.io/badge/Ansible-2.20-EE0000?style=for-the-badg>
+  <img src="https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?style=fo>
+  <img src="https://img.shields.io/badge/Proxmox-8.4-E57000?style=for-the-badge>
+  <img src="https://img.shields.io/badge/Tailscale-Mesh_VPN-242424?style=for-th>
+</p>
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Checkov-IaC_Scan-brightgreen?style=fla>
+  <img src="https://img.shields.io/badge/Trivy-Vulnerability_Scan-blue?style=fl>
+  <img src="https://img.shields.io/badge/Terraform_Cloud-State_Backend-7B42BC?s>
+  <img src="https://img.shields.io/badge/Ubuntu-22.04_Cloud_Init-E95420?style=f>
+  <img src="https://img.shields.io/badge/Nginx-Web_Server-009639?style=flat-squ>
+</p>
+
+**Pipeline CI/CD complet : un `git push` depuis un poste dev provisionne automa>
+
+**Zéro port exposé sur internet. Zéro intervention manuelle. 100% as-code.**
+
+---
+
+## 📐 Architecture
+
+
+^G Aide      ^O Écrire    ^W Chercher  ^K Couper    ^T Exécuter  ^C Emplacement
+^X Quitter   ^R Lire fich.^\ Remplacer ^U Coller    ^J Justifier ^/ Aller ligne
+
