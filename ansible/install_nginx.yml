@@ -10,6 +10,11 @@
         state: present
         update_cache: true
 
+    - name: Install Tailscale (pour corriger l'erreur No such file)
+      shell: "curl -fsSL https://tailscale.com/install.sh | sh"
+      args:
+        creates: /usr/bin/tailscale
+
     - name: Ensure certificate directory exists
       file:
         path: /etc/nginx/certs
@@ -19,19 +24,9 @@
         mode: '0755'
 
     - name: Provision Tailscale SSL Certificate
-      # On utilise le nom de la machine défini dans Proxmox pour le certificat
       command: "tailscale cert --cert-file /etc/nginx/certs/cert.crt --key-file /etc/nginx/certs/cert.key {{ ansible_hostname }}.tailfd58bd.ts.net"
-      changed_when: true
 
-    - name: Mise en place de la page Web pro
-      copy:
-        src: index.html
-        dest: /var/www/html/index.html
-        owner: www-data
-        group: www-data
-        mode: '0644'
-
-    - name: Configure Nginx for HTTP and HTTPS
+    - name: Configure Nginx with SSL
       copy:
         dest: /etc/nginx/sites-available/default
         content: |
