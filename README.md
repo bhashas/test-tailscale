@@ -8,14 +8,6 @@
   <img src="https://img.shields.io/badge/Tailscale-Mesh_VPN-242424?style=for-the-badge&logo=tailscale&logoColor=white"/>
 </p>
 
-<p align="left">
-  <img src="https://img.shields.io/badge/Checkov-IaC_Scan-brightgreen?style=flat-square"/>
-  <img src="https://img.shields.io/badge/Trivy-Vulnerability_Scan-blue?style=flat-square"/>
-  <img src="https://img.shields.io/badge/Terraform_Cloud-State_Backend-7B42BC?style=flat-square"/>
-  <img src="https://img.shields.io/badge/Ubuntu-22.04_Cloud_Init-E95420?style=flat-square&logo=ubuntu&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Nginx-Web_Server-009639?style=flat-square&logo=nginx&logoColor=white"/>
-</p>
-
 **Pipeline CI/CD complet : un `git push` depuis un poste dev provisionne automatiquement une VM sur Proxmox bare-metal Hetzner, la configure via Ansible, et déploie un serveur web.**
 
 **Zéro port exposé sur internet. Zéro intervention manuelle. 100% as-code.**
@@ -51,3 +43,39 @@
               │   192.168.192.55      │
               │   Nginx + page web    │
               └───────────────────────┘
+---
+
+### 🛠️ Étape 2 : La suite (Déploiement + Stack + Auteur)
+Va juste à la ligne en dessous de ce que tu viens de coller et ajoute ce bloc :
+
+```markdown
+---
+
+## 🖼️ Déploiement Réussi (Preuve de Concept)
+
+Voici le rendu final de la plateforme. L'accès est réalisé via le tunnel **Tailscale**.
+
+<p align="center">
+  <img src="https://github.com/bhashas/test-tailscale/raw/main/ansible/image_3.png" alt="Screenshot du déploiement réussi" width="100%">
+</p>
+
+---
+
+## 🛠️ Stack technique
+
+- **Terraform** : Provisionnement VM (Provider bpg/proxmox).
+- **Ansible** : Configuration (Nginx + Page Web).
+- **Tailscale** : Tunnel sécurisé entre GitHub et Proxmox.
+- **Security** : Scan IaC avec Checkov et Trivy.
+
+---
+
+## 📊 Compétences démontrées
+- Infrastructure as Code (IaC) ✅
+- Pipeline CI/CD DevSecOps ✅
+- Réseaux VPN Mesh (Zero Trust) ✅
+
+---
+
+## 👤 Auteur
+Projet réalisé par **Brahim H.** (Homelab & Cloud Engineering)
