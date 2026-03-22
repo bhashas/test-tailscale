@@ -24,7 +24,8 @@
         mode: '0755'
 
     - name: Connect VM to Tailscale tailnet
-      shell: "tailscale up --authkey={{ tailscale_vm_authkey }} --hostname=vm-test-proxmox --accept-routes"
+      shell: "tailscale up --authkey={{ tailscale_vm_authkey }} --hostname=vm-test-proxmox --accept-routes --timeout=30s"
+      timeout: 60
 
     - name: Wait for Tailscale to be ready
       pause:
