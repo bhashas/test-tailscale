@@ -196,5 +196,5 @@ curl http://192.168.192.55
 Construit dans le cadre d'un homelab multi-site (node local + Hetzner bare-metal) orienté pratique DevSecOps et Cloud Engineering.
 
 > Ce lab fait partie d'un portfolio de projets infrastructure couvrant Proxmox, pfSense, WireGuard, VXLAN, 802.1X/NPS, Kubernetes, Wazuh/ELK et GCP.
-> <img width="1135" height="686" alt="image_3" src="https://github.com/user-attachments/assets/111da9f3-0f86-497b-be5d-4461d0bef41a" />
+
 
