@@ -23,9 +23,16 @@
         group: www-data
         mode: '0755'
 
+    - name: Start tailscaled service
+      systemd:
+        name: tailscaled
+        state: started
+        enabled: true
+
     - name: Connect VM to Tailscale tailnet
-      shell: "tailscale up --authkey={{ tailscale_vm_authkey }} --hostname=vm-test-proxmox --accept-routes --timeout=30s"
-      timeout: 60
+      shell: "tailscale up --authkey={{ tailscale_vm_authkey }} --hostname=vm-test-proxmox --accept-routes"
+      async: 30
+      poll: 0
 
     - name: Wait for Tailscale to be ready
       pause:
