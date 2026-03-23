@@ -1,5 +1,4 @@
 name: Proxmox-Deploy-Lab
-
 on:
   push:
     branches: [ main ]
@@ -11,7 +10,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 1. Connexion du Runner au VPN (Utilise ton secret TAILSCALE_AUTHKEY)
       - name: Connect Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -24,28 +22,24 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        env:
-          PM_API_TOKEN_ID: ${{ secrets.PM_API_TOKEN_ID }}
-          PM_API_TOKEN_SECRET: ${{ secrets.PM_API_TOKEN_SECRET }}
-          PM_API_URL: ${{ secrets.PM_API_URL }}
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -refresh=false
+        run: terraform apply -auto-approve
         env:
-          PM_API_TOKEN_ID: ${{ secrets.PM_API_TOKEN_ID }}
-          PM_API_TOKEN_SECRET: ${{ secrets.PM_API_TOKEN_SECRET }}
-          PM_API_URL: ${{ secrets.PM_API_URL }}
+          TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
+          TF_VAR_proxmox_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
+          TF_VAR_proxmox_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
 
       - name: Wait for VM to be ready
-        run: sleep 60
+        run: sleep 90
 
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          # On scanne l'IP Tailscale pour éviter le blocage "Host key verification failed"
-          ssh-keyscan -H 100.104.1.90 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 192.168.192.55 >> ~/.ssh/known_hosts
 
       - name: Install Ansible
         run: pip install ansible
@@ -53,8 +47,7 @@ jobs:
       - name: Run Ansible playbook
         run: |
           ansible-playbook ansible/install_nginx.yml \
-            -i "100.104.1.90," \
+            -i ansible/inventory.ini \
             --private-key ~/.ssh/id_ed25519 \
-            -e "ansible_user=mila" \
             -e "tailscale_vm_authkey=${{ secrets.TAILSCALE_VM_AUTHKEY }}" \
             -v
