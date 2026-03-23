@@ -55,7 +55,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-          
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
@@ -66,13 +65,15 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
-       - name: Debug Token
+
+      - name: Debug Token
         run: |
           echo "TOKEN_ID=$TF_VAR_proxmox_api_token_id"
           echo "API_URL=$TF_VAR_proxmox_api_url"
         env:
           TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
           TF_VAR_proxmox_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
+
       - name: Terraform Plan
         run: terraform plan -out=tfplan
         env:
@@ -153,34 +154,4 @@ jobs:
           curl -sk --max-time 15 \
             https://vm-test-proxmox-1.tailfd58bd.ts.net \
             | grep -q "Pipeline OK" \
-            && echo "✅ HTTPS OK" \
-            || echo "⚠️ Vérification échouée"
-
-  # ─────────────────────────────────────────
-  # JOB 4 — Notification finale
-  # ─────────────────────────────────────────
-  notify:
-    name: Notification
-    runs-on: ubuntu-latest
-    needs: [ security-scan, terraform, ansible ]
-    if: always()
-
-    steps:
-      - name: Pipeline Success
-        if: needs.ansible.result == 'success'
-        run: |
-          echo "✅ Pipeline complet — succès"
-          echo "🌐 https://vm-test-proxmox-1.tailfd58bd.ts.net"
-          echo "VM  : vm-test-tailscale-final"
-          echo "IP  : 192.168.192.55"
-
-      - name: Pipeline Failure
-        if: >
-          needs.ansible.result == 'failure' ||
-          needs.terraform.result == 'failure'
-        run: |
-          echo "❌ Pipeline échoué"
-          echo "Security scan : ${{ needs.security-scan.result }}"
-          echo "Terraform     : ${{ needs.terraform.result }}"
-          echo "Ansible       : ${{ needs.ansible.result }}"
-          exit 1
+            && echo "✅ HTTPS OK"
