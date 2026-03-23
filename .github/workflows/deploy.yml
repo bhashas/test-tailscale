@@ -37,7 +37,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H 192.168.192.55 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 100.104.1.90 >> ~/.ssh/known_hosts
 
       - name: Install Ansible
         run: pip install ansible
