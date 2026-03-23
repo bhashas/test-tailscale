@@ -1,5 +1,5 @@
 ---
-- name: Configure web server with Tailscale HTTPS
+- name: Configure web server avec Tailscale HTTPS
   hosts: webservers
   become: true
 
@@ -30,20 +30,49 @@
         enabled: true
 
     - name: Connect VM to Tailscale tailnet
-      shell: "tailscale up --authkey={{ tailscale_vm_authkey }} --hostname=vm-test-proxmox --accept-routes"
-      async: 30
-      poll: 0
+      shell: >
+        tailscale up
+        --authkey={{ tailscale_vm_authkey }}
+        --hostname=vm-test-proxmox-1
+        --accept-routes
+      register: ts_up
+      changed_when: ts_up.rc == 0
 
     - name: Wait for Tailscale to be ready
       pause:
-        seconds: 10
+        seconds: 15
 
     - name: Get Tailscale DNS name
-      shell: tailscale status --json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['Self']['DNSName'].rstrip('.'))"
+      shell: >
+        tailscale status --json |
+        python3 -c "import sys,json;
+        d=json.load(sys.stdin);
+        print(d['Self']['DNSName'].rstrip('.'))"
       register: ts_dns
+      changed_when: false
+
+    - name: Display Tailscale DNS name
+      debug:
+        msg: "Tailscale DNS: {{ ts_dns.stdout }}"
 
     - name: Provision Tailscale SSL Certificate
-      shell: "tailscale cert --cert-file /etc/nginx/certs/cert.crt --key-file /etc/nginx/certs/cert.key {{ ts_dns.stdout }}"
+      shell: >
+        tailscale cert
+        --cert-file /etc/nginx/certs/cert.crt
+        --key-file /etc/nginx/certs/cert.key
+        {{ ts_dns.stdout }}
+      args:
+        creates: /etc/nginx/certs/cert.crt
+
+    - name: Set certificate permissions
+      file:
+        path: "{{ item }}"
+        owner: www-data
+        group: www-data
+        mode: '0640'
+      loop:
+        - /etc/nginx/certs/cert.crt
+        - /etc/nginx/certs/cert.key
 
     - name: Configure Nginx HTTPS
       copy:
@@ -51,6 +80,7 @@
         content: |
           server {
               listen 80;
+              server_name {{ ts_dns.stdout }};
               return 301 https://$host$request_uri;
           }
           server {
@@ -58,11 +88,17 @@
               server_name {{ ts_dns.stdout }};
               ssl_certificate     /etc/nginx/certs/cert.crt;
               ssl_certificate_key /etc/nginx/certs/cert.key;
+              ssl_protocols       TLSv1.2 TLSv1.3;
+              ssl_ciphers         HIGH:!aNULL:!MD5;
+              add_header Strict-Transport-Security "max-age=31536000" always;
+              add_header X-Frame-Options DENY;
+              add_header X-Content-Type-Options nosniff;
               location / {
                   root /var/www/html;
                   index index.html;
               }
           }
+        mode: '0644'
 
     - name: Enable site
       file:
@@ -75,23 +111,33 @@
         path: /etc/nginx/sites-enabled/default
         state: absent
 
-    - name: Deploy page web
+    - name: Test Nginx configuration
+      command: nginx -t
+      changed_when: false
+
+    - name: Deploy page web depuis index.html
       copy:
+        src: index.html
         dest: /var/www/html/index.html
-        content: |
-          <!DOCTYPE html>
-          <html>
-          <head><title>Pipeline OK</title></head>
-          <body>
-            <h1>Pipeline OK</h1>
-            <p>VM : {{ ansible_hostname }}</p>
-            <p>IP : {{ ansible_default_ipv4.address }}</p>
-            <p>Deploye via GitHub Actions + Terraform + Ansible + Tailscale HTTPS</p>
-          </body>
-          </html>
+        owner: www-data
+        group: www-data
+        mode: '0644'
 
     - name: Restart Nginx
       systemd:
         name: nginx
         state: restarted
         enabled: true
+
+    - name: Verify HTTPS is working
+      uri:
+        url: "https://{{ ts_dns.stdout }}"
+        validate_certs: false
+        status_code: 200
+      register: result
+      retries: 3
+      delay: 5
+
+    - name: Display result
+      debug:
+        msg: "✅ HTTPS OK — {{ ts_dns.stdout }} répond avec status {{ result.status }}"
