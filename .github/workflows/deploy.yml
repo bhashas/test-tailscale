@@ -66,10 +66,7 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Debug Token
-        run: |
-          echo "TOKEN_ID=$TF_VAR_proxmox_api_token_id"
-          echo "API_URL=$TF_VAR_proxmox_api_url"
+  
         env:
           TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
           TF_VAR_proxmox_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
