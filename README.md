@@ -160,7 +160,7 @@ git push origin main
 
 ### Résultat
 ```bash
-
+curl -sk https://vm-test-proxmox-1.tailfd58bd.ts.net
 # → Pipeline OK — Nginx + TLS Tailscale cert
 
 # Ou via IP privée depuis le tailnet
