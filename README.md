@@ -189,7 +189,6 @@ curl http://192.168.192.55
 `Proxmox VE 8.4` · `Terraform 1.7` · `bpg/proxmox provider` · `Ansible 2.20` · `Nginx` · `Tailscale 1.94` · `GitHub Actions` · `Checkov` · `Trivy` · `Terraform Cloud` · `Ubuntu 22.04 LTS` · `Cloud-Init` · `ed25519 SSH`
 
 ---
-<img width="1135" height="686" alt="image_3" src="https://github.com/user-attachments/assets/111da9f3-0f86-497b-be5d-4461d0bef41a" />
 
 ## 👤 Auteur
 
