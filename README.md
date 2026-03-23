@@ -189,9 +189,6 @@ curl http://192.168.192.55
 `Proxmox VE 8.4` · `Terraform 1.7` · `bpg/proxmox provider` · `Ansible 2.20` · `Nginx` · `Tailscale 1.94` · `GitHub Actions` · `Checkov` · `Trivy` · `Terraform Cloud` · `Ubuntu 22.04 LTS` · `Cloud-Init` · `ed25519 SSH`
 
 ---<img width="1356" height="686" alt="image_3" src="https://github.com/user-attachments/assets/5b52b718-1c25-4782-a180-b1e97275793a" />
-<img width="1356" height="686" alt="image_3" src="https://github.com/user-attachments/assets/5b52b718-1c25-4782-a180-b1e97275793a" />
-
-
 ## 👤 Auteur
 
 Construit dans le cadre d'un homelab multi-site (node local + Hetzner bare-metal) orienté pratique DevSecOps et Cloud Engineering.
