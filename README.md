@@ -160,6 +160,10 @@ git push origin main
 
 ### Résultat
 ```bash
+
+# → Pipeline OK — Nginx + TLS Tailscale cert
+
+# Ou via IP privée depuis le tailnet
 curl http://192.168.192.55
 # → <h1>Pipeline OK</h1>
 # → <p>VM : vm-test-tailscale-bpg</p>
