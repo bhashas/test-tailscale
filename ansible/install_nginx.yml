@@ -4,12 +4,14 @@
   become: true
 
   tasks:
+    # --- SECTION 1 : PRÉPARATION DU SYSTÈME ET NGINX ---
     - name: Install Nginx
       ansible.builtin.apt:
         name: nginx
         state: present
         update_cache: true
 
+    # --- SECTION 2 : INSTALLATION DE TAILSCALE ---
     - name: Download Tailscale install script
       ansible.builtin.get_url:
         url: https://tailscale.com/install.sh
@@ -22,20 +24,13 @@
       args:
         creates: /usr/bin/tailscale
 
-    - name: Ensure certificate directory exists
-      ansible.builtin.file:
-        path: /etc/nginx/certs
-        state: directory
-        owner: www-data
-        group: www-data
-        mode: '0755'
-
     - name: Start tailscaled service
       ansible.builtin.systemd:
         name: tailscaled
         state: started
         enabled: true
 
+    # --- SECTION 3 : CONNEXION AU RÉSEAU TAILSCALE ---
     - name: Connect VM to Tailscale tailnet
       ansible.builtin.shell:
         cmd: >
@@ -56,6 +51,7 @@
       ansible.builtin.pause:
         seconds: 10
 
+    # --- SECTION 4 : CERTIFICATS SSL ET DNS TAILSCALE ---
     - name: Get Tailscale DNS name
       ansible.builtin.shell:
         cmd: |
@@ -69,6 +65,14 @@
     - name: Display Tailscale DNS name
       ansible.builtin.debug:
         msg: "Tailscale DNS: {{ ts_dns.stdout }}"
+
+    - name: Ensure certificate directory exists
+      ansible.builtin.file:
+        path: /etc/nginx/certs
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
 
     - name: Provision Tailscale SSL Certificate
       ansible.builtin.shell:
@@ -91,6 +95,7 @@
         - /etc/nginx/certs/cert.crt
         - /etc/nginx/certs/cert.key
 
+    # --- SECTION 5 : CONFIGURATION NGINX HTTPS ---
     - name: Configure Nginx HTTPS
       ansible.builtin.copy:
         dest: /etc/nginx/sites-available/app
@@ -147,6 +152,39 @@
         state: restarted
         enabled: true
 
+    # --- SECTION 6 : SÉCURITÉ PARE-FEU (UFW) ---
+    # Stratégie : Tout bloquer en entrée SAUF via Tailscale
+    # Tout autoriser en sortie (indispensable pour les MAJ)
+
+    - name: Allow all outgoing traffic
+      ansible.builtin.ufw:
+        rule: allow
+        direction: out
+
+    - name: Allow SSH via Tailscale only
+      ansible.builtin.ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+        interface: tailscale0
+        direction: in
+
+    - name: Allow HTTP/HTTPS via Tailscale only
+      ansible.builtin.ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+        interface: tailscale0
+        direction: in
+      loop: ['80', '443']
+
+    - name: Enable UFW and deny all other incoming traffic
+      ansible.builtin.ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+
+    # --- SECTION 7 : VÉRIFICATION FINALE ---
     - name: Verify HTTPS is working
       ansible.builtin.uri:
         url: "https://{{ ts_dns.stdout }}"
