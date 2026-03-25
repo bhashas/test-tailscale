@@ -2,18 +2,21 @@ name: '🛡️ Infrastructure Drift Detection'
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Tourne tous les jours à minuit (ou '0 * * * *' pour toutes les heures)
-  workflow_dispatch:      # Permet de le lancer à la main pour tester depuis l'onglet Actions
+    - cron: '0 0 * * *' # Tous les jours à minuit
+  workflow_dispatch:      # Pour lancer le test à la main
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   drift-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v3.1.2
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
@@ -26,11 +29,16 @@ jobs:
           # -detailed-exitcode renvoie 2 si une différence est trouvée
           terraform plan -detailed-exitcode || exit_code=$?
           if [ ${exit_code} -eq 2 ]; then
-            echo "🚨 DRIFT DETECTED: Quelqu'un a modifié Proxmox manuellement !"
+            echo "🚨 DRIFT DETECTED: Différence entre Git et Proxmox !"
             exit 1
           elif [ ${exit_code} -eq 0 ]; then
-            echo "✅ Infrastructure alignée avec Git."
+            echo "✅ Infrastructure alignée."
           else
             echo "❌ Erreur lors du plan."
             exit 1
           fi
+        env:
+          TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
+          TF_VAR_proxmox_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
+          TF_VAR_proxmox_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
