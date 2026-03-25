@@ -34,12 +34,7 @@ jobs:
           output_format: cli
 
       - name: Trivy — scan filesystem
-        uses: aquasecurity/trivy-action@v0.28.0 # <-- FIX ICI : Downgrade pour éviter l'erreur setup-trivy
-        with:
-          scan-type: fs
-          scan-ref: .
-          severity: HIGH,CRITICAL
-          exit-code: 0
+        uses: aquasecurity/trivy-action@master
 
   # ─────────────────────────────────────────
   # JOB 2 — Terraform (provision VM)
