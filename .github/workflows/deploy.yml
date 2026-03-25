@@ -66,11 +66,6 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-  
-        env:
-          TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
-          TF_VAR_proxmox_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
-
       - name: Terraform Plan
         run: terraform plan -out=tfplan
         env:
@@ -118,7 +113,7 @@ jobs:
             if ssh -o StrictHostKeyChecking=no \
                    -o ConnectTimeout=5 \
                    -i ~/.ssh/id_ed25519 \
-                   ubuntu@100.104.1.90 exit 2>/dev/null; then
+                   ubuntu@vm-test-proxmox-1.tailfd58bd.ts.net exit 2>/dev/null; then
               echo "✅ VM accessible SSH !"
               break
             fi
@@ -127,7 +122,7 @@ jobs:
           done
 
       - name: Add VM to known_hosts
-        run: ssh-keyscan -H 100.104.1.90 >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H vm-test-proxmox-1.tailfd58bd.ts.net >> ~/.ssh/known_hosts
 
       - name: Install Ansible
         run: pip install ansible==10.7.0
