@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+# Force l'utilisation de Node 24 pour toutes les actions du workflow
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
@@ -19,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Checkov — scan Terraform
-        uses: bridgecrewio/checkov-action@v12
+        uses: bridgecrewio/checkov-action@v12.3020.0
         with:
           directory: .
           framework: terraform
@@ -30,7 +34,7 @@ jobs:
           output_format: cli
 
       - name: Trivy — scan filesystem
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.29.0
         with:
           scan-type: fs
           scan-ref: .
@@ -48,15 +52,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Connect Tailscale
-        uses: tailscale/github-action@v2
+        uses: tailscale/github-action@v3
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v3.1.2
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
@@ -80,7 +84,7 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply tfplan
-        env:
+        env: # <--- Correction Claude : Obligatoire pour l'apply
           TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
           TF_VAR_proxmox_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
           TF_VAR_proxmox_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
@@ -97,10 +101,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Connect Tailscale
-        uses: tailscale/github-action@v2
+        uses: tailscale/github-action@v3
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
 
@@ -129,11 +133,14 @@ jobs:
         run: ssh-keyscan -H vm-test-proxmox-1.tailfd58bd.ts.net >> ~/.ssh/known_hosts
 
       - name: Install Ansible
-        run: pip install ansible==10.7.0
+        run: pip install ansible==11.1.0
+
+      - name: Install Collections # <--- Nécessaire pour community.general.ufw
+        run: ansible-galaxy collection install -r ansible/requirements.yml
 
       - name: Ansible lint
         run: |
-          pip install ansible-lint==24.2.0
+          pip install ansible-lint==25.1.0
           ansible-lint ansible/install_nginx.yml || true
 
       - name: Run Ansible playbook
