@@ -60,10 +60,9 @@
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          tailscale status --json | \
-          python3 -c "import sys,json;
-          d=json.load(sys.stdin);
-          print(d['Self']['DNSName'].rstrip('.'))"
+          tailscale status --json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['Self']['DNSName'].rstrip('.'))"
+      args:
+        executable: /bin/bash
       register: ts_dns
       changed_when: false
 
