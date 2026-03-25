@@ -1,4 +1,5 @@
 
+````markdown
 ![Deploy Status](https://github.com/bhashas/test-tailscale/actions/workflows/deploy.yml/badge.svg)
 
 # 🚀 Proxmox CI/CD Lab — Terraform + Ansible + Tailscale HTTPS + UFW
@@ -137,7 +138,7 @@ test-tailscale/
 
 ```bash
 # Test du certificat SSL (Cadenas vert 🔒)
-curl -v [https://vm-test-proxmox-1.your-tailnet.ts.net](https://vm-test-proxmox-1.your-tailnet.ts.net)
+curl -v https://vm-test-proxmox-1.your-tailnet.ts.net
 
 # Test du Pare-feu (Accès IP publique bloqué)
 curl --connect-timeout 5 http://<IP_PUBLIQUE_HETZNER>
@@ -146,15 +147,15 @@ curl --connect-timeout 5 http://<IP_PUBLIQUE_HETZNER>
 
 -----
 
-## 📊 Compétences démontrées
+## 📊 Focus Technique
 
-| Compétence | Technologie | Niveau |
+| Axe | Technologies | Implémentation |
 |---|---|---|
-| Infrastructure as Code | Terraform + Proxmox | ✅ Expert |
-| Configuration Management | Ansible | ✅ Idempotent |
-| CI/CD Pipeline | GitHub Actions | ✅ Production |
-| VPN Mesh & Networking | Tailscale + Subnet routing | ✅ Zero-trust |
-| IaC Security Scanning | Checkov + Trivy | ✅ DevSecOps |
+| **Infrastructure as Code** | Terraform + Proxmox | Provisionnement immuable via API & Cloud-Init |
+| **Configuration Management** | Ansible | Playbooks idempotents & Hardening système |
+| **CI/CD Pipeline** | GitHub Actions | Workflow multi-jobs avec gestion de concurrence |
+| **Networking & Sécurité** | Tailscale + UFW | VPN Mesh Zero-Trust & Firewalling strict |
+| **DevSecOps** | Checkov + Trivy | Analyse statique IaC & Scan de vulnérabilités |
 
 -----
 
@@ -162,6 +163,5 @@ curl --connect-timeout 5 http://<IP_PUBLIQUE_HETZNER>
 
 ## 👤 Auteur
 
-Projet conçu pour un environnement **Hetzner Bare-Metal** orienté **Cloud Engineering** et **Sécurité DevSecOps**.
+**Brahim Hashas** *Cloud & Automation Engineer* Orienté pratique DevSecOps sur infrastructures Bare-Metal (Hetzner/Proxmox).
 
-```
