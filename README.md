@@ -85,15 +85,15 @@ git push (main)
 
 ### Infrastructure as Code
 
-  - **Terraform `bpg/proxmox` provider** — Provisionnement via API Proxmox.
-  - **Cloud-init** — Injection clé SSH ed25519 + IP statique.
-  - **Terraform Cloud** — Backend distant pour le state.
+  * **Terraform `bpg/proxmox` provider** — Provisionnement via API Proxmox.
+  * **Cloud-init** — Injection clé SSH ed25519 + IP statique.
+  * **Terraform Cloud** — Backend distant pour le state.
 
 ### Configuration Management & Sécurité
 
-  - **Ansible** — Playbook idempotent pour Nginx et la sécurisation système.
-  - **UFW (Firewall)** — Stratégie `Default Deny`. Seul le trafic via `tailscale0` est autorisé.
-  - **Tailscale Cert** — HTTPS automatique sans exposition de ports publics.
+  * **Ansible** — Playbook idempotent pour Nginx et la sécurisation système.
+  * **UFW (Firewall)** — Stratégie `Default Deny`. Seul le trafic via `tailscale0` est autorisé.
+  * **Tailscale Cert** — HTTPS automatique sans exposition de ports publics.
 
 -----
 
@@ -116,7 +116,7 @@ test-tailscale/
 ## 🔐 Secrets GitHub
 
 | Secret | Rôle |
-|---|---|
+| :--- | :--- |
 | `TAILSCALE_AUTHKEY` | Auth key éphémère pour le Runner |
 | `TAILSCALE_VM_AUTHKEY` | Auth key pour l'enregistrement de la VM cible |
 | `PM_API_URL` | URL API Proxmox via Tailscale |
@@ -131,14 +131,14 @@ test-tailscale/
 
 ### Prérequis
 
-  - Node Proxmox avec Tailscale et subnet routing activé (`192.168.192.0/18`).
-  - Template Ubuntu 22.04 cloud-init (VM ID 9000).
+  * Node Proxmox avec Tailscale et subnet routing activé (`192.168.192.0/18`).
+  * Template Ubuntu 22.04 cloud-init (VM ID 9000).
 
 ### Validation
 
 ```bash
 # Test du certificat SSL (Cadenas vert 🔒)
-curl -v https://vm-test-proxmox-1.your-tailnet.ts.net
+curl -v [https://vm-test-proxmox-1.your-tailnet.ts.net](https://vm-test-proxmox-1.your-tailnet.ts.net)
 
 # Test du Pare-feu (Accès IP publique bloqué)
 curl --connect-timeout 5 http://<IP_PUBLIQUE_HETZNER>
@@ -150,7 +150,7 @@ curl --connect-timeout 5 http://<IP_PUBLIQUE_HETZNER>
 ## 📊 Focus Technique
 
 | Axe | Technologies | Implémentation |
-|---|---|---|
+| :--- | :--- | :--- |
 | **Infrastructure as Code** | Terraform + Proxmox | Provisionnement immuable via API & Cloud-Init |
 | **Configuration Management** | Ansible | Playbooks idempotents & Hardening système |
 | **CI/CD Pipeline** | GitHub Actions | Workflow multi-jobs avec gestion de concurrence |
@@ -159,9 +159,11 @@ curl --connect-timeout 5 http://<IP_PUBLIQUE_HETZNER>
 
 -----
 
-\<img width="1366" height="667" alt="inscription" src="https://github.com/user-attachments/assets/913adb0f-4623-4908-b139-e093e7694ce1" /\>
+\<img width="1366" height="667" alt="Dashboard" src="https://github.com/user-attachments/assets/913adb0f-4623-4908-b139-e093e7694ce1" /\>
 
 ## 👤 Auteur
 
 **Brahim Hashas** *Cloud & Automation Engineer* Orienté pratique DevSecOps sur infrastructures Bare-Metal (Hetzner/Proxmox).
+
+```
 
