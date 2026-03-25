@@ -11,7 +11,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${ (https://github.com/ref) }}
   cancel-in-progress: false
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
           output_format: cli
 
       - name: Trivy — scan filesystem
-        uses: aquasecurity/trivy-action@v0.29.0
+        uses: aquasecurity/trivy-action@v0.28.0 # <-- FIX ICI : Downgrade pour éviter l'erreur setup-trivy
         with:
           scan-type: fs
           scan-ref: .
@@ -84,7 +84,7 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply tfplan
-        env: # <--- Correction Claude : Obligatoire pour l'apply
+        env:
           TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
           TF_VAR_proxmox_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
           TF_VAR_proxmox_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
@@ -135,7 +135,7 @@ jobs:
       - name: Install Ansible
         run: pip install ansible==11.1.0
 
-      - name: Install Collections # <--- Nécessaire pour community.general.ufw
+      - name: Install Collections
         run: ansible-galaxy collection install -r ansible/requirements.yml
 
       - name: Ansible lint
