@@ -35,7 +35,11 @@ jobs:
 
       - name: Trivy — scan filesystem
         uses: aquasecurity/trivy-action@master
-
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: HIGH,CRITICAL
+          exit-code: '0'
   # ─────────────────────────────────────────
   # JOB 2 — Terraform (provision VM)
   # ─────────────────────────────────────────
