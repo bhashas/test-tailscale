@@ -1,3 +1,4 @@
+
 ![Deploy Status](https://github.com/bhashas/test-tailscale/actions/workflows/deploy.yml/badge.svg)
 
 # 🚀 Proxmox CI/CD Lab — Terraform + Ansible + Tailscale HTTPS + UFW
@@ -13,7 +14,7 @@
 <p align="left">
   <img src="https://img.shields.io/badge/Checkov-IaC_Scan-brightgreen?style=flat-square"/>
   <img src="https://img.shields.io/badge/Trivy-Vulnerability_Scan-blue?style=flat-square"/>
-  <img src="https://img.shields.io/badge/UFW-Hardening-orange?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Terraform_Cloud-State_Backend-7B42BC?style=flat-square"/>
   <img src="https://img.shields.io/badge/Ubuntu-22.04_Cloud_Init-E95420?style=flat-square&logo=ubuntu&logoColor=white"/>
   <img src="https://img.shields.io/badge/Nginx-Web_Server-009639?style=flat-square&logo=nginx&logoColor=white"/>
 </p>
@@ -44,7 +45,8 @@
               └───────────┬───────────┘
                           │ Tailscale encrypted tunnel
                           ▼
-                  Proxmox Hetzner (Bare-metal)
+                  Proxmox Hetzner (100.108.39.48)
+                  subnet: 192.168.192.0/18
                           │
                           ▼
               ┌───────────────────────────┐
@@ -53,3 +55,113 @@
               │   🌐 HTTPS: Tailscale Cert│
               │   DNS: vm-test-proxmox-1  │
               └───────────────────────────┘
+````
+
+-----
+
+## 🔄 Pipeline CI/CD
+
+**Gestion de flux** : `cancel-in-progress: false` garantit l'intégrité du State Terraform.
+
+```text
+git push (main)
+    │
+    ├── [Job 1] Scan IaC : Checkov & Trivy (Export SARIF)
+    │
+    ├── [Job 2] Terraform : Provisionnement VM Proxmox
+    │           └── Clone VM template Cloud-Init (IP statique + SSH)
+    │
+    └── [Job 3] Ansible : Configuration & Hardening
+                ├── Join Tailnet (via authkey dédiée)
+                ├── SSL : Provisionnement cert via 'tailscale cert'
+                ├── Nginx : Config HTTPS & Headers de sécurité
+                └── UFW : Fermeture totale IP publique (Inbound Deny)
+```
+
+-----
+
+## 🛠️ Stack technique
+
+### Infrastructure as Code
+
+  - **Terraform `bpg/proxmox` provider** — Provisionnement via API Proxmox.
+  - **Cloud-init** — Injection clé SSH ed25519 + IP statique.
+  - **Terraform Cloud** — Backend distant pour le state.
+
+### Configuration Management & Sécurité
+
+  - **Ansible** — Playbook idempotent pour Nginx et la sécurisation système.
+  - **UFW (Firewall)** — Stratégie `Default Deny`. Seul le trafic via `tailscale0` est autorisé.
+  - **Tailscale Cert** — HTTPS automatique sans exposition de ports publics.
+
+-----
+
+## 📁 Structure du projet
+
+```text
+test-tailscale/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml        # Pipeline CI/CD complet
+├── ansible/
+│   ├── inventory.ini         # VM cible via DNS Tailscale
+│   └── install_nginx.yml     # Playbook : Nginx + SSL + UFW
+├── main.tf                   # VM Proxmox + cloud-init
+└── README.md
+```
+
+-----
+
+## 🔐 Secrets GitHub
+
+| Secret | Rôle |
+|---|---|
+| `TAILSCALE_AUTHKEY` | Auth key éphémère pour le Runner |
+| `TAILSCALE_VM_AUTHKEY` | Auth key pour l'enregistrement de la VM cible |
+| `PM_API_URL` | URL API Proxmox via Tailscale |
+| `PM_API_TOKEN_ID` | ID token API Proxmox |
+| `PM_API_TOKEN_SECRET` | Secret UUID du token Proxmox |
+| `SSH_PRIVATE_KEY` | Clé ed25519 privée pour Ansible |
+| `TF_API_TOKEN` | Token Terraform Cloud |
+
+-----
+
+## 🚀 Déploiement & Résultat
+
+### Prérequis
+
+  - Node Proxmox avec Tailscale et subnet routing activé (`192.168.192.0/18`).
+  - Template Ubuntu 22.04 cloud-init (VM ID 9000).
+
+### Validation
+
+```bash
+# Test du certificat SSL (Cadenas vert 🔒)
+curl -v [https://vm-test-proxmox-1.your-tailnet.ts.net](https://vm-test-proxmox-1.your-tailnet.ts.net)
+
+# Test du Pare-feu (Accès IP publique bloqué)
+curl --connect-timeout 5 http://<IP_PUBLIQUE_HETZNER>
+# → Connection timed out
+```
+
+-----
+
+## 📊 Compétences démontrées
+
+| Compétence | Technologie | Niveau |
+|---|---|---|
+| Infrastructure as Code | Terraform + Proxmox | ✅ Expert |
+| Configuration Management | Ansible | ✅ Idempotent |
+| CI/CD Pipeline | GitHub Actions | ✅ Production |
+| VPN Mesh & Networking | Tailscale + Subnet routing | ✅ Zero-trust |
+| IaC Security Scanning | Checkov + Trivy | ✅ DevSecOps |
+
+-----
+
+\<img width="1366" height="667" alt="inscription" src="https://github.com/user-attachments/assets/913adb0f-4623-4908-b139-e093e7694ce1" /\>
+
+## 👤 Auteur
+
+Projet conçu pour un environnement **Hetzner Bare-Metal** orienté **Cloud Engineering** et **Sécurité DevSecOps**.
+
+```
