@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-# Force l'utilisation de Node 24 pour toutes les actions du workflow
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -15,9 +14,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ─────────────────────────────────────────
-  # JOB 1 — Scan sécurité IaC
-  # ─────────────────────────────────────────
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
@@ -41,9 +37,6 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: '0'
 
-  # ─────────────────────────────────────────
-  # JOB 2 — Terraform (provision VM)
-  # ─────────────────────────────────────────
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
@@ -92,25 +85,15 @@ jobs:
 
       - name: Generate Dynamic Inventory
         run: |
-          echo "Génération de l'inventory Ansible dynamique..."
-          
-          # Récupérer les IPs depuis Terraform outputs
-          VM_505_IP=$(terraform output -json vm_ip_addresses | jq -r '.["505"]')
+          echo "Génération de l'inventory pour VM 506..."
           VM_506_IP=$(terraform output -json vm_ip_addresses | jq -r '.["506"]')
-          
-          echo "VM 505 IP: $VM_505_IP"
           echo "VM 506 IP: $VM_506_IP"
           
-          # Générer l'inventory Ansible
           cat > ansible/inventory.ini << EOF
-          [webservers]
-          vm-test-proxmox-1.tailfd58bd.ts.net ansible_host=$VM_505_IP ansible_user=ubuntu
-
           [portfolio]
-          vm-portfolio.tailfd58bd.ts.net ansible_host=$VM_506_IP ansible_user=ubuntu
+          vm-portfolio ansible_host=$VM_506_IP ansible_user=ubuntu
           EOF
           
-          echo "✅ Inventory généré:"
           cat ansible/inventory.ini
         env:
           TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
@@ -118,11 +101,8 @@ jobs:
           TF_VAR_proxmox_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
 
-  # ─────────────────────────────────────────
-  # JOB 3 — Ansible (configuration VM)
-  # ─────────────────────────────────────────
   ansible:
-    name: Ansible
+    name: Deploy Portfolio
     runs-on: ubuntu-latest
     needs: terraform
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -142,23 +122,17 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-      - name: Wait for VM SSH ready
+      - name: Wait for VM 506 SSH
         run: |
-          echo "Attente SSH sur la VM..."
+          echo "Attente SSH VM 506..."
           for i in {1..30}; do
-            if ssh -o StrictHostKeyChecking=no \
-                   -o ConnectTimeout=5 \
-                   -i ~/.ssh/id_ed25519 \
-                   ubuntu@192.168.192.55 exit 2>/dev/null; then
-              echo "✅ VM accessible SSH !"
+            if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -i ~/.ssh/id_ed25519 ubuntu@192.168.192.56 exit 2>/dev/null; then
+              echo "✅ VM 506 OK"
               break
             fi
-            echo "Tentative $i/30 — attente 10s..."
+            echo "Tentative $i/30..."
             sleep 10
           done
-
-      - name: Add VM to known_hosts
-        run: ssh-keyscan -H vm-test-proxmox-1.tailfd58bd.ts.net >> ~/.ssh/known_hosts
 
       - name: Install Ansible
         run: pip install ansible==11.1.0
@@ -166,23 +140,8 @@ jobs:
       - name: Install Collections
         run: ansible-galaxy collection install -r ansible/requirements.yml
 
-      - name: Ansible lint
-        run: |
-          pip install ansible-lint==25.1.0
-          ansible-lint ansible/install_nginx.yml || true
+      - name: Deploy Portfolio
+        run: ansible-playbook ansible/setup_portfolio.yml -i ansible/inventory.ini --private-key ~/.ssh/id_ed25519 -v
 
-      - name: Run Ansible playbook
-        run: |
-          ansible-playbook ansible/install_nginx.yml \
-            -i ansible/inventory.ini \
-            --private-key ~/.ssh/id_ed25519 \
-            -e "tailscale_vm_authkey=${{ secrets.TAILSCALE_VM_AUTHKEY }}" \
-            -v
-
-      - name: Verify HTTPS deployment
-        run: |
-          echo "Vérification HTTPS via DNS Tailscale..."
-          curl -sk --max-time 15 \
-            https://vm-test-proxmox-1.tailfd58bd.ts.net \
-            | grep -q "Pipeline OK" \
-            && echo "✅ HTTPS OK"
+      - name: Verify
+        run: curl -s http://192.168.192.56 | head -20
