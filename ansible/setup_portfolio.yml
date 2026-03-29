@@ -1,0 +1,25 @@
+---
+- name: Deploy Portfolio Website
+  hosts: portfolio
+  become: true
+
+  tasks:
+    - name: Install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+    - name: Deploy portfolio index.html
+      ansible.builtin.copy:
+        src: index.html
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Start Nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+        enabled: true
