@@ -149,7 +149,7 @@ jobs:
             if ssh -o StrictHostKeyChecking=no \
                    -o ConnectTimeout=5 \
                    -i ~/.ssh/id_ed25519 \
-                   ubuntu@vm-test-proxmox-1.tailfd58bd.ts.net exit 2>/dev/null; then
+                   ubuntu@192.168.192.55 exit 2>/dev/null; then
               echo "✅ VM accessible SSH !"
               break
             fi
