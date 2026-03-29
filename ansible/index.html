@@ -3,70 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proxmox Cloud Lab - Success</title>
+    <title>Brahim HASHAS | Control Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #f8fafc;
-            font-family: 'Inter', -apple-system, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-        }
-        .card {
-            background: rgba(30, 41, 59, 0.7);
-            padding: 3rem;
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 500px;
-        }
-        h1 {
-            color: #4ade80;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            letter-spacing: -1px;
-        }
-        .info {
-            font-size: 1.1rem;
-            color: #94a3b8;
-            margin: 1rem 0;
-            line-height: 1.6;
-        }
-        .tech-stack {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 2rem;
-        }
-        .tag {
-            background: #334155;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
+        body { background-color: #0b0f1a; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+        .glass-card { background: #111827; border: 1px solid #1f2937; border-radius: 4px; }
+        .status-bar { background: #05070a; border-bottom: 1px solid #1f2937; font-family: font-mono; font-size: 10px; }
+        .badge { padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid rgba(255,255,255,0.1); }
+        .code-block { background: #05070a; border-radius: 4px; padding: 1.5rem; font-family: 'Fira Code', monospace; font-size: 12px; line-height: 1.6; }
+        
+        .nav-btn { background: #111827; border: 1px solid #1f2937; padding: 8px 16px; border-radius: 4px; transition: 0.2s; font-size: 12px; color: #94a3b8; font-weight: 600; }
+        .nav-btn:hover, .nav-btn.active { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.05); }
+
+        .arch-node { border: 2px solid; padding: 12px; border-radius: 6px; text-align: center; min-width: 120px; font-weight: bold; font-size: 10px; background: rgba(0,0,0,0.4); }
+        .node-green { border-color: #10b981; color: #10b981; }
+        .node-purple { border-color: #8b5cf6; color: #8b5cf6; }
+        .node-orange { border-color: #f59e0b; color: #f59e0b; }
+        .node-blue { border-color: #3b82f6; color: #3b82f6; }
+
+        .lab-content { display: none; }
+        .lab-content.active { display: block; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>🚀 Pipeline OK</h1>
-        <div class="info">
-            <p><strong>Node :</strong> Proxmox Hetzner</p>
-            <p><strong>Target :</strong> vm-test-tailscale-final (ID 505)</p>
-            <p><strong>Network :</strong> 192.168.192.56 (Tailscale)</p>
-        </div>
-        <div class="tech-stack">
-            <span class="tag">TERRAFORM</span>
-            <span class="tag">ANSIBLE</span>
-            <span class="tag">TAILSCALE</span>
-        </div>
+
+    <div class="status-bar px-6 py-2 flex justify-end items-center text-gray-500 uppercase tracking-widest gap-6">
+        <span class="text-[10px]"><i class="fas fa-code-branch"></i> build: main@7f3a2b1</span>
+        <span class="text-green-500 flex items-center gap-2 text-[10px]">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></div> SYNC ACTIVE
+        </span>
     </div>
-</body>
-</html>
+
+    <div class="max-w-[1400px] mx-auto px-8 py-10">
+        
+        <header class="flex flex-col lg:flex-row justify-between items-start mb-12">
+            <div>
+                <h1 class="text-5xl font-bold text-white tracking-tight">Brahim HASHAS</h1>
+                <p class="text-green-500 text-lg font-medium mt-1 uppercase tracking-wider">Cloud & SecOps Architect | Infrastructure as Code Specialist</p>
+            </div>
+            
+            <div class="flex items-center gap-4 mt-6 lg:mt-0">
+                <div class="glass-card px-5 py-3 flex items-center gap-4 border-teal-500/20">
+                    <div id="status-dot" class="w-3 h-3 bg-teal-500 rounded-full animate-pulse"></div>
+                    <div class="text-[10px] uppercase font-bold">
+                        <p class="text-gray-500">SYSTEM STATUS</p>
+                        <p class="text-white font-mono">Hetzner-PVE-01: Online</p>
+                    </div>
+                </div>
+                <a href="#" class="bg-white text-black font-bold px-6 py-3 rounded text-sm hover:bg-gray-200">CURRICULUM</a>
+                <a href="#" class="bg-blue-600 text-white font-bold px-6 py-3 rounded text-sm hover:bg-blue-500 transition">CONTACT ME</a>
+            </div>
+        </header>
+
+        <nav class="flex flex-wrap gap-3 mb-12">
+            <button onclick="switchTab('main')" id="tab-main" class="nav-btn active">Main Dashboard</button>
+            <button onclick="switchTab('scaling')" id="tab-scaling" class="nav-btn">Lab: Autoscaling</button>
+            <button onclick="switchTab('lb')" id="tab-lb" class="nav-btn">Lab: Load Balancer</button>
+            <button onclick="switchTab('k3s')" id="tab-k3s" class="nav-btn">Lab: Cluster K3s</button>
+        </nav>
+
+        <div id="content-main" class="lab-content active">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+                <div class="glass-card p-8 lg:col-span-4">
+                    <h3 class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-8">Node: Bare Metal I7</h3>
+                    <div class="space-y-12">
+                        <div>
+                            <div class="flex justify-between text-xs mb-3 font-mono">
+                                <span>CPU Usage (8 vCPUs)</span>
+                                <span id="cpu-value" class="text-blue-400">22%</span>
+                            </div>
+                            <div class="w-full bg-gray-950 h-[3px] rounded-full">
+                                <div id="cpu-bar" class="bg-blue-500 h-full w-[22%] transition-all duration-1000"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-3 font-mono text-gray-400">
+                                <span>RAM (64GB DDR4)</span>
+                                <span id="ram-value" class="text-orange-400">24GB / 64GB</span>
+                            </div>
+                            <div class="w-full bg-gray-950 h-[3px] rounded-full">
+                                <div id="ram-bar" class="bg-gradient-to-r from-blue-500 to-orange-500 h-full w-[37.5%] transition-all duration-1000"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 lg:col-span-8">
+                    <h3 class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-10">Architecture Infrastructure</h3>
+                    <div class="flex flex-wrap items-center justify-around gap-2 py-6 relative">
+                        <div class="arch-node node-green">GITHUB<br><span class="opacity-50 text-[8px]">Actions CI/CD</span></div>
+                        <i class="fas fa-chevron-right text-gray-800"></i>
+                        <div class="arch-node node-purple">TERRAFORM<br><span class="opacity-50 text-[9px]">Cloud + State</span></div>
+                        <i class="fas fa-chevron-right text-gray-800"></i>
+                        <div class="flex flex-col gap-4">
+                            <div class="arch-node node-orange">PROXMOX<br><span class="opacity-50 text-[9px]">VM Host</span></div>
+                            <div class="arch-node node-blue">VM-505<br><span class="opacity-50 text-[9px]">Ubuntu 22.04</span></div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-800"></i>
+                        <div class="arch-node node-green">TAILSCALE<br><span class="opacity-50 text-[9px]">VPN Mesh</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-card p-8">
+                    <div class="flex items-start gap-6 mb-8">
+                        <div class="w-12 h-12 rounded bg-green-500/10 flex items-center justify-center border border-green-500/20">
+                            <i class="fas fa-code-merge text-green-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white uppercase tracking-tight">"Git is the Single Source of Truth"</h3>
+                            <p class="text-sm text-gray-500 mt-1">Toute l'infrastructure est versionnée et déployée automatiquement depuis Git. Zero-configuration drift.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="badge border-purple-500/30 text-purple-400">Terraform</span>
+                        <span class="badge border-red-500/30 text-red-500">Ansible</span>
+                        <span class="badge border-green-500/30 text-green-500">GitOps</span>
+                        <span class="badge border-orange-500/30 text-orange-400">Proxmox</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-2">
+                    <div class="code-block h-full">
+                        <span class="text-purple-400">resource</span> <span class="text-green-400">"proxmox_vm_qemu" "vm_505"</span> {<br>
+                        &nbsp;&nbsp;name = <span class="text-orange-400">"production-vm"</span><br>
+                        &nbsp;&nbsp;memory = <span class="text-orange-400">8192</span> cores = <span class="text-orange-400">4</span><br>
+                        &nbsp;&nbsp;<span class="text-gray-600"># Provisioning via Ansible</span><br>
+                        &nbsp;&nbsp;<span class="text-purple-400">provisioner</span> <span class="text-green-400">"local-exec"</span> { command = <span class="text-orange-400">"ansible-playbook deploy.yml"</span> }<br>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-scaling" class="lab-content glass-card p-20 text-center text-gray-500 uppercase tracking-widest text-xs font-bold">Module: Autoscaling Engine</div>
+        <div id="content-lb" class="lab-content glass-card p-20 text-center text-gray-500 uppercase tracking-widest text-xs font-bold">Module: Load Balancer HA</div>
+        <div id="content-k3s" class="lab-content glass-card p-20 text-center text-gray-500 uppercase tracking-widest text-xs font-bold">Module: K3s Cluster</div>
+
+        <footer class="mt-16 pt-8 border-t border-white/5 text-center text-gray-600 text-[10px] tracking-[0.3em] uppercase">
+            © 2026 hashas.fr | Immutability as a Service | Code 6203Z
+        </footer>
+
+    </div>
+
+    <script>
+        function switchTab(id) {
+            document.querySelectorAll('.lab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('content-' + id).classList.add('active');
+            document.getElementById('tab-' + id).classList.add('active');
+        }
+
+        async function updateDashboardMetrics() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                document.querySelector('#cpu-value').textContent = data.cpu + '%';
+                document.querySelector('#cpu-bar').style.width = data.cpu + '%';
+                document.querySelector('#ram-value').textContent = `${data.ram_gb}GB / 64GB`;
+                document.querySelector('#ram-bar').style.width = (data.ram_gb / 64 * 100) + '%';
+                
+                const statusDot = document.querySelector('#status-dot');
+                statusDot.className = data.online ? 'w-3 h-3 bg-teal-
