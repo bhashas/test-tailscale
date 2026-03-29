@@ -11,7 +11,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
-  group: ${{ github.workflow }}-${ (https://github.com/ref) }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -40,6 +40,7 @@ jobs:
           scan-ref: '.'
           severity: HIGH,CRITICAL
           exit-code: '0'
+
   # ─────────────────────────────────────────
   # JOB 2 — Terraform (provision VM)
   # ─────────────────────────────────────────
@@ -83,6 +84,34 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply tfplan
+        env:
+          TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
+          TF_VAR_proxmox_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
+          TF_VAR_proxmox_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+
+      - name: Generate Dynamic Inventory
+        run: |
+          echo "Génération de l'inventory Ansible dynamique..."
+          
+          # Récupérer les IPs depuis Terraform outputs
+          VM_505_IP=$(terraform output -json vm_ip_addresses | jq -r '.["505"]')
+          VM_506_IP=$(terraform output -json vm_ip_addresses | jq -r '.["506"]')
+          
+          echo "VM 505 IP: $VM_505_IP"
+          echo "VM 506 IP: $VM_506_IP"
+          
+          # Générer l'inventory Ansible
+          cat > ansible/inventory.ini << EOF
+          [webservers]
+          vm-test-proxmox-1.tailfd58bd.ts.net ansible_host=$VM_505_IP ansible_user=ubuntu
+
+          [portfolio]
+          vm-portfolio.tailfd58bd.ts.net ansible_host=$VM_506_IP ansible_user=ubuntu
+          EOF
+          
+          echo "✅ Inventory généré:"
+          cat ansible/inventory.ini
         env:
           TF_VAR_proxmox_api_url: ${{ secrets.PM_API_URL }}
           TF_VAR_proxmox_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
