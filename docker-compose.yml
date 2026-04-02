@@ -1,0 +1,9 @@
+services:
+  dashboard:
+    image: nginx:latest
+    container_name: my-dashboard
+    ports:
+      - "8081:80"
+    volumes:
+      - ./ansible:/usr/share/nginx/html
+    restart: always
