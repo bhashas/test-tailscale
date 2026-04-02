@@ -52,3 +52,12 @@ variable "virtual_machines" {
     }
   }
 }
+
+# ══════════════════════════════════════════════════════════════
+# CONFIGURATION RÉSEAU (DNS)
+# ══════════════════════════════════════════════════════════════
+variable "dns_servers" {
+  description = "Liste des serveurs DNS pour les VMs"
+  type        = list(string)
+  default     = ["1.1.1.1", "8.8.8.8"]
+}

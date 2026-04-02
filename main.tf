@@ -85,9 +85,9 @@ resource "proxmox_virtual_environment_vm" "vms" {
     datastore_id = "local-zfs"
 
     dns {
-      servers = ["1.1.1.1", "8.8.8.8"]
+      # On utilise une variable plutôt que des IPs en dur
+      servers = var.dns_servers
     }
-
     ip_config {
       ipv4 {
         address = each.value.ip_address
