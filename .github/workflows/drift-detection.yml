@@ -31,14 +31,20 @@ jobs:
       - name: Terraform Plan (Drift Check)
         id: plan
         run: |
+          # On initialise exit_code à 0 par défaut
+          exit_code=0
           terraform plan -detailed-exitcode || exit_code=$?
-          if [ "$exit_code" -eq 2 ]; then
+          
+          echo "Terraform a renvoyé l'exit code : $exit_code"
+
+          if [ "$exit_code" = "2" ]; then
             echo "DRIFT DETECTED: Difference entre Git et Proxmox"
             exit 1
-          elif [ "$exit_code" -eq 0 ]; then
+          elif [ "$exit_code" = "0" ]; then
             echo "Infrastructure alignee."
+            exit 0
           else
-            echo "Erreur lors du plan."
+            echo "Erreur lors du plan Terraform (code $exit_code)."
             exit 1
           fi
         env:
