@@ -1,5 +1,5 @@
 
-![Deploy Status](https://github.com/bhashas/test-tailscale/actions/workflows/deploy.yml/badge.svg)
+[![Deploy Status](https://github.com/bhashas/proxmox-gitops-lab/actions/workflows/deploy.yml/badge.svg)](https://github.com/bhashas/proxmox-gitops-lab/actions/workflows/deploy.yml)
 
 # 🚀 Proxmox CI/CD Lab — Terraform + Ansible + Tailscale HTTPS + UFW
 
@@ -99,7 +99,7 @@ git push (main)
 ## 📁 Structure du projet
 
 ```text
-test-tailscale/
+proxmox-gitops-lab/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml        # Pipeline CI/CD complet
@@ -161,7 +161,9 @@ curl --connect-timeout 5 http://<IP_PUBLIQUE_HETZNER>
 
 ## 👤 Auteur
 
-**Brahim Hashas** *Cloud & Automation Engineer* Orienté pratique DevSecOps sur infrastructures Bare-Metal (Hetzner/Proxmox).
+**Brahim Hashas** — Cloud & DevSecOps Engineer  
+📩 [b.hashas@hashas.fr](mailto:b.hashas@hashas.fr)  
+💼 [linkedin.com/in/brahim-hashas-221902100](https://www.linkedin.com/in/brahim-hashas-221902100/)
 
 ```
 
