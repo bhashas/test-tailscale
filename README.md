@@ -165,8 +165,6 @@ curl --connect-timeout 5 http://<IP_PUBLIQUE_HETZNER>
 📩 [b.hashas@hashas.fr](mailto:b.hashas@hashas.fr)  
 💼 [linkedin.com/in/brahim-hashas-221902100](https://www.linkedin.com/in/brahim-hashas-221902100/)
 
-```
-
 
 ```
 
